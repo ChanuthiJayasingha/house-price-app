@@ -19,7 +19,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("Powered by Streamlit & Scikit-Learn")
 
-st.title("🏠 XGBoost House Price Predictor")
+st.title("🏠  House Price Predictor")
 st.markdown("Predict the sale price of houses in Ames, Iowa based on 75 unique property features.")
 
 @st.cache_resource
