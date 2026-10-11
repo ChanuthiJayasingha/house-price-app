@@ -6,11 +6,21 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# 1. UI Configuration (Must be the first Streamlit command)
+# 1. UI Configuration & Sidebar (Must be the first Streamlit commands)
 st.set_page_config(page_title="House Price Predictor", page_icon="🏠", layout="wide")
 
-st.title("🏠 House Price Predictor")
-st.markdown("Predict the sale price of houses in Ames, Iowa using an advanced machine learning model.")
+with st.sidebar:
+    st.header("🏠 Ames Housing Predictor")
+    st.markdown("An advanced machine learning pipeline using XGBoost.")
+    st.markdown("---")
+    st.markdown("### 📌 Instructions:")
+    st.markdown("**Bulk Predict:** Upload a CSV matching the training schema. Great for analyzing multiple properties.")
+    st.markdown("**Single House:** Enter details manually into the categorized form to test specific feature combinations.")
+    st.markdown("---")
+    st.caption("Powered by Streamlit & Scikit-Learn")
+
+st.title("🏠 XGBoost House Price Predictor")
+st.markdown("Predict the sale price of houses in Ames, Iowa based on 75 unique property features.")
 
 @st.cache_resource
 def load_models():
@@ -40,7 +50,7 @@ with tab1:
         try:
             df = pd.read_csv(uploaded_file)
             
-            # Data type enforcement
+            # Data type enforcement to prevent pipeline crashes
             for col in ["MSSubClass", "MoSold"]:
                 if col in df.columns:
                     df[col] = df[col].astype(str)
@@ -53,23 +63,17 @@ with tab1:
                 log_predictions = pipeline.predict(X_input)
                 actual_predictions = np.expm1(log_predictions)
                 
-                # Insert predictions at the front of the dataframe for easy viewing
+                # Insert predictions at the front
                 df.insert(0, 'Predicted_SalePrice', actual_predictions)
-                
                 st.success("✅ Predictions generated successfully!")
                 
-                # UI ENHANCEMENT: Display the results directly in the app
                 st.subheader("📊 Prediction Results")
-                
-                # If only one row was uploaded, show a large price metric
                 if len(df) == 1:
                     price = df['Predicted_SalePrice'].iloc[0]
                     st.metric(label="Estimated Sale Price", value=f"${price:,.2f}")
                 
-                # Display an interactive table in the UI
                 st.dataframe(df.head(50), use_container_width=True)
                 
-                # Keep the download button for the full file
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
                     label="⬇️ Download Full Predictions as CSV",
@@ -83,32 +87,46 @@ with tab1:
 
 
 # ---------------------------------------------------------
-# TAB 2: MANUAL DATA ENTRY FORM
+# TAB 2: MANUAL DATA ENTRY FORM (GROUPED)
 # ---------------------------------------------------------
 with tab2:
     st.header("Predict a Single House")
-    st.info("Enter the features for a single property to get an instant price estimate.")
+    st.info("Expand the categories below to enter property details. Default values are set to 0.")
     
-    # Create a dynamic form based on the model's expected columns
     with st.form("single_prediction_form"):
-        st.write("### Property Details")
+        # Create expandable containers for logical UI grouping
+        exp_location = st.expander("📍 Location & Zoning", expanded=True)
+        exp_size = st.expander("📏 Dimensions & Size")
+        exp_quality = st.expander("✨ Quality & Condition")
+        exp_amenities = st.expander("🏊 Amenities (Garage, Basement, Pool, etc.)")
+        exp_other = st.expander("🔧 Other Features")
         
-        # Organize the 75 inputs into 4 neat columns so it doesn't require endless scrolling
-        cols = st.columns(4)
         input_data = {}
         
-        # Loop through every required feature and generate a text box
-        for i, col_name in enumerate(expected_cols):
-            with cols[i % 4]:
-                # Default value is set to "0" or "None" to prevent empty string errors
-                input_data[col_name] = st.text_input(label=col_name, value="0")
+        # Dynamically distribute the 75 inputs into the correct expander
+        for col in expected_cols:
+            col_lower = col.lower()
+            
+            # Routing logic based on feature name keywords
+            if any(k in col_lower for k in ['area', 'sf', 'room']):
+                target_exp = exp_size
+            elif any(k in col_lower for k in ['qual', 'cond']):
+                target_exp = exp_quality
+            elif any(k in col_lower for k in ['garage', 'bsmt', 'pool', 'fire', 'porch', 'deck']):
+                target_exp = exp_amenities
+            elif any(k in col_lower for k in ['mszoning', 'neigh', 'street', 'alley', 'lot']):
+                target_exp = exp_location
+            else:
+                target_exp = exp_other
                 
-        # Form submission button
+            # Render the input inside the targeted expander
+            with target_exp:
+                input_data[col] = st.text_input(label=col, value="0", key=col)
+                
         submit_button = st.form_submit_button("Generate Prediction", type="primary")
         
     if submit_button:
         try:
-            # Convert the user's manual inputs into a dataframe
             input_df = pd.DataFrame([input_data])
             
             # Data type enforcement
@@ -116,13 +134,10 @@ with tab2:
                 if col in input_df.columns:
                     input_df[col] = input_df[col].astype(str)
                     
-            # Generate the prediction
             log_pred = pipeline.predict(input_df[expected_cols])
             price_pred = np.expm1(log_pred)[0]
             
             st.success("✅ Prediction complete!")
-            
-            # UI ENHANCEMENT: Show the final price as a massive, highlighted metric
             st.metric(label="Estimated Sale Price", value=f"${price_pred:,.2f}")
             
         except Exception as e:
