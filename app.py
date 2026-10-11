@@ -9,7 +9,7 @@ warnings.filterwarnings('ignore')
 # 1. UI Configuration (Must be the first Streamlit command)
 st.set_page_config(page_title="House Price Predictor", page_icon="🏠", layout="wide")
 
-st.title("🏠 XGBoost House Price Predictor")
+st.title("🏠 House Price Predictor")
 st.markdown("Predict the sale price of houses in Ames, Iowa using an advanced machine learning model.")
 
 @st.cache_resource
