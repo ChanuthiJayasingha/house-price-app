@@ -9,7 +9,7 @@ warnings.filterwarnings('ignore')
 
 # 1. Page Configuration
 st.set_page_config(page_title="Ames Housing Predictor", layout="wide")
-st.title("🏡 XGBoost House Price Predictor")
+st.title("🏡 House Price Predictor")
 st.write("Estimate Ames Housing prices using either bulk CSV upload or the interactive manual entry tool.")
 
 # 2. Load New Artifacts
