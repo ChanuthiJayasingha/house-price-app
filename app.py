@@ -7,15 +7,19 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# 1. Page Configuration
+# ==========================================
+# 1. PAGE CONFIGURATION & HEADER
+# ==========================================
 st.set_page_config(page_title="Ames Housing Predictor", layout="wide")
-st.title("🏡 House Price Predictor")
+st.title("🏡 XGBoost House Price Predictor")
 st.write("Estimate Ames Housing prices using either bulk CSV upload or the interactive manual entry tool.")
 
-# 2. Load New Artifacts
+# ==========================================
+# 2. LOAD MODEL ARTIFACTS
+# ==========================================
 @st.cache_resource
 def load_models():
-    # Updated to load the new "top feature" models and JSON schema
+    # Load the new "top feature" models and JSON schema
     pipeline = joblib.load('xgb_top_housing_pipeline.joblib')
     expected_cols = joblib.load('top_feature_columns.joblib')
     with open('feature_schema.json', 'r') as f:
@@ -28,21 +32,26 @@ except Exception as e:
     st.error(f"Error loading models: {str(e)}. Ensure 'xgb_top_housing_pipeline.joblib', 'top_feature_columns.joblib', and 'feature_schema.json' are uploaded.")
     st.stop()
 
-# 3. Setup Tabs
+# ==========================================
+# 3. SETUP TABS
+# ==========================================
 tab1, tab2 = st.tabs(["Bulk Predict (CSV)", "Single House (Manual)"])
 
 # ==========================================
-# TAB 1: BULK PREDICTION (Your Original Logic, Updated for Tabs)
+# TAB 1: BULK PREDICTION (FULL VIEW)
 # ==========================================
 with tab1:
     st.header("Bulk Prediction")
+    st.write("Upload your CSV file to generate predictions.")
+    
+    # The uploader stays visible at all times on the page
     uploaded_file = st.file_uploader("Upload CSV with Housing Features", type=["csv"])
 
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
             
-            # Enforce exact data types from training (preserved from your original code)
+            # Enforce exact data types from training
             for col in ["MSSubClass", "MoSold"]:
                 if col in df.columns:
                     df[col] = df[col].astype(str)
@@ -52,20 +61,24 @@ with tab1:
             if missing_cols:
                 st.error(f"Schema Error: Missing required columns: {missing_cols}")
             else:
+                # Generate predictions
                 X_input = df[expected_cols]
                 log_predictions = pipeline.predict(X_input)
-                actual_predictions = np.expm1(log_predictions)
+                df['Predicted_SalePrice'] = np.expm1(log_predictions)
                 
-                df['Predicted_SalePrice'] = actual_predictions
-                st.success("Success! Predictions generated.")
+                st.success("✅ Success! Prices have been estimated for all properties.")
                 
-                # Convert dataframe to CSV for download
+                # Display the dataframe using the full width of the container
+                st.dataframe(df, use_container_width=True, height=400)
+                
+                # Provide the download button immediately below the results
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
-                    label="Download Predictions as CSV",
+                    label="⬇️ Download Predictions as CSV",
                     data=csv,
                     file_name='predicted_house_prices.csv',
                     mime='text/csv',
+                    type="primary"
                 )
                 
         except Exception as e:
