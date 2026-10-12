@@ -1,0 +1,92 @@
+{
+    "OverallQual": {
+        "type": "numerical",
+        "min": 1.0,
+        "max": 10.0,
+        "default": 6.0
+    },
+    "GarageCars": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 4.0,
+        "default": 2.0
+    },
+    "KitchenAbvGr": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 3.0,
+        "default": 1.0
+    },
+    "GrLivArea": {
+        "type": "numerical",
+        "min": 334.0,
+        "max": 5642.0,
+        "default": 1464.0
+    },
+    "FullBath": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 3.0,
+        "default": 2.0
+    },
+    "Fireplaces": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 3.0,
+        "default": 1.0
+    },
+    "TotalBsmtSF": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 6110.0,
+        "default": 991.5
+    },
+    "OverallCond": {
+        "type": "numerical",
+        "min": 1.0,
+        "max": 9.0,
+        "default": 5.0
+    },
+    "1stFlrSF": {
+        "type": "numerical",
+        "min": 334.0,
+        "max": 4692.0,
+        "default": 1087.0
+    },
+    "YearBuilt": {
+        "type": "numerical",
+        "min": 1872.0,
+        "max": 2010.0,
+        "default": 1973.0
+    },
+    "GarageArea": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 1418.0,
+        "default": 480.0
+    },
+    "BsmtFinSF1": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 5644.0,
+        "default": 383.5
+    },
+    "YearRemodAdd": {
+        "type": "numerical",
+        "min": 1950.0,
+        "max": 2010.0,
+        "default": 1994.0
+    },
+    "2ndFlrSF": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 2065.0,
+        "default": 0.0
+    },
+    "BsmtFullBath": {
+        "type": "numerical",
+        "min": 0.0,
+        "max": 3.0,
+        "default": 0.0
+    }
+}
